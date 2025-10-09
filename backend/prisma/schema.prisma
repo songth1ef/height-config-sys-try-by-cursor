@@ -1,0 +1,117 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  password  String
+  avatar    String?
+  role      String[] @default(["user"])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // 关联
+  userConfig UserConfig?
+  refreshTokens RefreshToken[]
+
+  @@map("users")
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  // 关联
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("refresh_tokens")
+}
+
+model UserConfig {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  lang      String   @default("zh-CN")
+  themeUrl  String   @default("/themes/default.css")
+  styleUrl  String?
+  layout    String   @default("dashboard")
+  config    Json     @default("{}")
+  version   Int      @default(1)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // 关联
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_configs")
+}
+
+model Module {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  path        String
+  enabled     Boolean  @default(true)
+  permissions String[] @default([])
+  properties  Json     @default("{}")
+  parentId    String?
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // 自关联
+  parent   Module?  @relation("ModuleHierarchy", fields: [parentId], references: [id])
+  children Module[] @relation("ModuleHierarchy")
+
+  @@map("modules")
+}
+
+model Language {
+  id        String   @id @default(cuid())
+  code      String   @unique
+  name      String
+  content   Json     @default("{}")
+  version   String   @default("1.0.0")
+  enabled   Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("languages")
+}
+
+model Theme {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  url       String
+  css       String?
+  version   String   @default("1.0.0")
+  enabled   Boolean  @default(true)
+  isDefault Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("themes")
+}
+
+model SystemConfig {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     Json
+  type      String   @default("string") // string, number, boolean, object, array
+  category  String   @default("general")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("system_configs")
+}
