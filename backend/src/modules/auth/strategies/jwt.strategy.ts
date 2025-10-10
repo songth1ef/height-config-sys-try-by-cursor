@@ -35,6 +35,13 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       throw new UnauthorizedException('用户不存在');
     }
 
-    return user;
+    // 确保 role 是数组格式
+    const userWithArrayRole = {
+      ...user,
+      role: Array.isArray(user.role) ? user.role : [],
+      permissions: [] // 添加 permissions 字段
+    };
+
+    return userWithArrayRole;
   }
 }

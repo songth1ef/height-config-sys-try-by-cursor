@@ -15,7 +15,14 @@ export class ConfigService {
       return this.createDefaultUserConfig(userId);
     }
 
-    return userConfig.config;
+    // 返回完整的用户配置对象，包含 userConfig 字段
+    return {
+      id: userConfig.id,
+      userConfig: userConfig.config,
+      version: userConfig.version,
+      createdAt: userConfig.createdAt,
+      updatedAt: userConfig.updatedAt,
+    };
   }
 
   async updateUserConfig(userId: string, config: any) {
@@ -31,7 +38,14 @@ export class ConfigService {
       },
     });
 
-    return userConfig.config;
+    // 返回完整的用户配置对象，包含 userConfig 字段
+    return {
+      id: userConfig.id,
+      userConfig: userConfig.config,
+      version: userConfig.version,
+      createdAt: userConfig.createdAt,
+      updatedAt: userConfig.updatedAt,
+    };
   }
 
   async getDefaultModules() {
@@ -64,6 +78,13 @@ export class ConfigService {
       },
     });
 
-    return userConfig.config;
+    // 返回完整的用户配置对象，包含 userConfig 字段
+    return {
+      id: userConfig.id,
+      userConfig: userConfig.config,
+      version: userConfig.version,
+      createdAt: userConfig.createdAt,
+      updatedAt: userConfig.updatedAt,
+    };
   }
 }

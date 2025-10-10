@@ -5,6 +5,61 @@ const prisma = new PrismaClient();
 async function main() {
   console.log('🌱 开始数据库种子数据初始化...');
 
+  // 创建测试用户
+  const bcrypt = require('bcryptjs');
+  const hashedPassword = await bcrypt.hash('password123', 10);
+  
+  const testUser = await prisma.user.upsert({
+    where: { email: 'test@example.com' },
+    update: {},
+    create: {
+      email: 'test@example.com',
+      name: '测试用户',
+      password: hashedPassword,
+      role: ['user'],
+    },
+  });
+
+  // 创建测试用户配置
+  await prisma.userConfig.upsert({
+    where: { userId: testUser.id },
+    update: {},
+    create: {
+      userId: testUser.id,
+      lang: 'zh-CN',
+      themeUrl: '/themes/default.css',
+      layout: 'dashboard',
+      config: {
+        modules: [
+          {
+            id: 'home',
+            enabled: true,
+            properties: {
+              'welcome-banner': { show: true },
+              'quick-actions': { show: true },
+              'recent-activities': { show: true },
+            },
+          },
+          {
+            id: 'dashboard',
+            enabled: true,
+            properties: {
+              'stats-cards': { show: true },
+              'charts': { show: true },
+              'recent-orders': { show: true },
+            },
+          },
+          {
+            id: 'profile',
+            enabled: true,
+            properties: {},
+          },
+        ],
+      },
+      version: 1,
+    },
+  });
+
   // 创建默认模块
   const modules = [
     {
@@ -112,15 +167,7 @@ async function main() {
     {
       name: 'default',
       url: '/themes/default.css',
-      css: `
-        :root {
-          --primary-color: #3b82f6;
-          --secondary-color: #64748b;
-          --background-color: #ffffff;
-          --text-color: #1e293b;
-          --border-color: #e2e8f0;
-        }
-      `,
+      css: ':root{--primary-color:#3b82f6;--secondary-color:#64748b;--background-color:#ffffff;--text-color:#1e293b;--border-color:#e2e8f0;}',
       version: '1.0.0',
       enabled: true,
       isDefault: true,
@@ -128,15 +175,7 @@ async function main() {
     {
       name: 'dark',
       url: '/themes/dark.css',
-      css: `
-        :root {
-          --primary-color: #60a5fa;
-          --secondary-color: #94a3b8;
-          --background-color: #1e293b;
-          --text-color: #f1f5f9;
-          --border-color: #334155;
-        }
-      `,
+      css: ':root{--primary-color:#60a5fa;--secondary-color:#94a3b8;--background-color:#1e293b;--text-color:#f1f5f9;--border-color:#334155;}',
       version: '1.0.0',
       enabled: true,
       isDefault: false,

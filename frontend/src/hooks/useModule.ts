@@ -1,6 +1,5 @@
-import { useState, useEffect, useMemo } from 'react'
+import React, { useState, useMemo } from 'react'
 import dynamic from 'next/dynamic'
-import { useConfig } from './useConfig'
 
 interface ModuleLoaderProps {
   moduleId: string
@@ -9,42 +8,25 @@ interface ModuleLoaderProps {
 }
 
 export const useModule = ({ moduleId, fallback, loading }: ModuleLoaderProps) => {
-  const { checkModulePermission, getModuleConfig } = useConfig()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // 检查模块权限
-  const hasPermission = useMemo(() => {
-    return checkModulePermission(moduleId)
-  }, [moduleId, checkModulePermission])
-
-  // 获取模块配置
-  const moduleConfig = useMemo(() => {
-    return getModuleConfig(moduleId)
-  }, [moduleId, getModuleConfig])
-
   // 动态加载模块
   const Module = useMemo(() => {
-    if (!hasPermission || !moduleConfig?.enabled) {
-      return fallback || null
-    }
-
     return dynamic(
       () => import(`@/modules/${moduleId}`),
       {
         loading: () => {
           setIsLoading(true)
-          return loading ? <loading /> : <div>Loading...</div>
+          return React.createElement('div', null, 'Loading...')
         },
         ssr: false
       }
     )
-  }, [moduleId, hasPermission, moduleConfig?.enabled, fallback, loading])
+  }, [moduleId])
 
   // 预加载模块
   const preloadModule = async () => {
-    if (!hasPermission || !moduleConfig?.enabled) return
-
     try {
       setIsLoading(true)
       setError(null)
@@ -61,18 +43,15 @@ export const useModule = ({ moduleId, fallback, loading }: ModuleLoaderProps) =>
   // 卸载模块
   const unloadModule = () => {
     // 这里可以实现模块卸载逻辑
-    // 例如清理模块相关的状态、事件监听器等
   }
 
   return {
     Module,
-    hasPermission,
-    moduleConfig,
     isLoading,
     error,
     preloadModule,
     unloadModule,
-    isEnabled: moduleConfig?.enabled || false
+    isEnabled: true
   }
 }
 
@@ -82,19 +61,19 @@ export const ModuleRenderer: React.FC<ModuleLoaderProps> = ({
   fallback, 
   loading 
 }) => {
-  const { Module, hasPermission, isEnabled, error } = useModule({ 
+  const { Module, isEnabled, error } = useModule({ 
     moduleId, 
     fallback, 
     loading 
   })
 
   if (error) {
-    return <div className="text-red-500">模块加载错误: {error}</div>
+    return React.createElement('div', { className: 'text-red-500' }, `模块加载错误: ${error}`)
   }
 
-  if (!hasPermission || !isEnabled) {
-    return fallback ? <fallback /> : null
+  if (!isEnabled) {
+    return null
   }
 
-  return Module ? <Module /> : null
+  return Module ? React.createElement(Module) : null
 }

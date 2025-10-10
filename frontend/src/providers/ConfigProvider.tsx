@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useEffect, ReactNode } from 'react'
 import { useConfig } from '@/hooks/useConfig'
 import { useAuthStore } from '@/stores/authStore'
+import '@/configs/i18n'
 
 interface ConfigContextType {
   config: any

@@ -16,7 +16,7 @@ model User {
   name      String
   password  String
   avatar    String?
-  role      String[] @default(["user"])
+  role      Json     @default("[\"user\"]")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -63,7 +63,7 @@ model Module {
   name        String   @unique
   path        String
   enabled     Boolean  @default(true)
-  permissions String[] @default([])
+  permissions Json     @default("[]")
   properties  Json     @default("{}")
   parentId    String?
   order       Int      @default(0)

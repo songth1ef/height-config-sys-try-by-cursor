@@ -18,6 +18,7 @@ export const useConfigStore = create<ConfigStore>()(
       set((state) => {
         state.userConfig = config
         state.mergedConfig = config
+        console.log('设置用户配置到store:', config)
       })
     },
 

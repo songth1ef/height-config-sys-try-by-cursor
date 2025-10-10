@@ -20,7 +20,7 @@ export const useAuthStore = create<AuthStore>()(
         set({ isLoading: true, error: null })
         
         try {
-          const response = await fetch('/api/auth/login', {
+          const response = await fetch('http://localhost:3001/auth/login', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -56,7 +56,7 @@ export const useAuthStore = create<AuthStore>()(
         set({ isLoading: true, error: null })
         
         try {
-          const response = await fetch('/api/auth/register', {
+          const response = await fetch('http://localhost:3001/auth/register', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -104,7 +104,7 @@ export const useAuthStore = create<AuthStore>()(
         if (!refreshToken) return
 
         try {
-          const response = await fetch('/api/auth/refresh', {
+          const response = await fetch('http://localhost:3001/auth/refresh', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
